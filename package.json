@@ -1,0 +1,25 @@
+{
+  "name": "empattendance",
+  "version": "1.0.0",
+  "description": "empAttendance",
+  "main": "index.js",
+  "scripts": {
+    "start":"nodemon app.js",
+    "test": "emp"
+  },
+  "repository": {
+    "type": "git",
+    "url": "emp rep"
+  },
+  "keywords": [
+    "empe"
+  ],
+  "author": "group2",
+  "license": "ISC",
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^4.21.0",
+    "mongoose": "^8.6.3",
+    "nodemon": "^3.1.6"
+  }
+}

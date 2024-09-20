@@ -9,5 +9,5 @@ const empSchema = new Schema({
     joinDate: Date,
     salary: Number
 })
-const Employee = mongoose.model("empInfo",empSchema);
+const Employee = mongoose.model("empinfo",empSchema);
 module.exports =Employee;

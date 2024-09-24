@@ -2,6 +2,8 @@ const express = require("express");
 const { default: mongoose } = require("mongoose");
 const path = require("path");
 const Employee = require("./models/Employee");
+const Leave = require("./models/Leave");
+
 const app = express();
 
 //middleware chuyen du lieu thanh doi tuong
@@ -64,6 +66,85 @@ app.get('/editEmp/:id', async (req, res) => {
     res.redirect('/');
   });
 
+  // GET all leave requests
+  app.get("/leave", async (req, res) => {
+  try {
+    const leaveRequests = await Leave.find().populate('employeeId');
+    res.render("leave", { leaveRequests });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+// POST a new leave request
+app.post('/leave', async (req, res) => {
+  const { employeeId, leaveType, startDate, endDate, status } = req.body;
+  const newLeaveRequest = new Leave({ employeeId, leaveType, startDate, endDate, status });
+  
+  try {
+    await newLeaveRequest.save();
+    res.redirect('/leave');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+// GET form to add a leave request
+app.get("/leave/add", (req, res) => {
+  res.render("leaveAdd"); // Render form to add leave request
+});
+
+app.post('/leave/:id', async (req, res) => {
+  console.log('Updating leave request with ID:', req.params.id);
+  console.log('Update data:', req.body);
+
+  // Extract fields from request body
+  const { employeeId, leaveType, startDate, endDate, status } = req.body;
+
+  // Validate employeeId
+  if (!employeeId || !mongoose.Types.ObjectId.isValid(employeeId)) {
+      console.error('Invalid employeeId:', employeeId);
+      return res.status(400).send("Invalid employee ID");
+  }
+
+  try {
+      // Update the leave request and return the updated document
+      const updatedLeave = await Leave.findByIdAndUpdate(req.params.id, {
+          employeeId,
+          leaveType,
+          startDate,
+          endDate,
+          status
+      }, { new: true });
+
+      // Check if the leave request was found and updated
+      if (!updatedLeave) {
+          console.log('Leave request not found');
+          return res.status(404).send("Leave request not found");
+      }
+
+      res.redirect('/leave');
+  } catch (error) {
+      console.error('Error updating leave request:', error);
+      res.status(500).send("Internal Server Error");
+  }
+});
+
+
+// GET to delete a leave request
+app.get('/leave/delete/:id', async (req, res) => {
+  try {
+    await Leave.findByIdAndDelete(req.params.id);
+    res.redirect('/leave');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+module.exports = app;
 const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`app is listening on http://localhost:${PORT}`);
